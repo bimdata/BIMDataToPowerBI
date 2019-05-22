@@ -2,14 +2,17 @@
     File name: get-elements-by-type-pie-chart.py
     Author: Benjamin Audet
     Date created: 10/05/2019
-    Date last modified: 10/05/2019
+    Date last modified: 22/05/2019
     Python Version: 3.7
 '''
 
 import matplotlib.pyplot as plt
-import pandas
+import pandas as pd
 import bimdata_api_client
-from bimdata_api_client.rest import ApiException
+
+# This line will not work outside of Power BI since it's a variable exposed by Power BI only
+df = pd.DataFrame(dataset.loc[:1, 'access_token'])
+access_token = df.iloc[0][0]
 
 def compute_elements_sum_by_type(api_response, elements_sum_by_type):
     raw_types = list(map(lambda x: x.type, api_response.elements))
@@ -28,28 +31,25 @@ def render_pie_chart(elements_sum_by_type):
 def config():
     # Configure API key authorization: Bearer
     configuration = bimdata_api_client.Configuration()
-    configuration.api_key['Authorization'] = '71710e12ad4849749f3e8d454c120b7b'
+    configuration.api_key['Authorization'] = access_token
     # Uncomment below to setup prefix (e.g. Bearer) for API key, if needed
     configuration.api_key_prefix['Authorization'] = 'Bearer'
-    configuration.host = 'https://api-next.bimdata.io'
+    configuration.host = 'https://api-staging.bimdata.io'
     return configuration
 
 def main():
     configuration = config()
     # create an instance of the API class
     ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
-    cloud_pk = '466'
-    project_pk = '449'
-    ifc_pk = '978'
+    cloud_pk = '305'
+    project_pk = '403'
+    ifc_pk = '803'
 
-    try:
-        api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
-        elements_sum_by_type = {}
-        compute_elements_sum_by_type(api_response, elements_sum_by_type)
-        render_pie_chart(elements_sum_by_type)
-        print(elements_sum_by_type)
-    except ApiException as e:
-        print("Exception when calling IfcApi->get_raw_elements: %s\n" % e)
+    api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
+    elements_sum_by_type = {}
+    compute_elements_sum_by_type(api_response, elements_sum_by_type)
+    render_pie_chart(elements_sum_by_type)
+    print(elements_sum_by_type)
 
 if __name__ == "__main__":
     main()
