@@ -2,15 +2,15 @@
     File name: get-elements-by-type-pie-chart.py
     Author: Benjamin Audet
     Date created: 10/05/2019
-    Date last modified: 22/05/2019
+    Date last modified: 27/05/2019
     Python Version: 3.7
 '''
 
 import matplotlib.pyplot as plt
 import pandas as pd
 import bimdata_api_client
+from bimdata_api_client.rest import ApiException
 
-# This line will not work outside of Power BI since it's a variable exposed by Power BI only
 df = pd.DataFrame(dataset.loc[:1, 'access_token'])
 access_token = df.iloc[0][0]
 
@@ -45,11 +45,13 @@ def main():
     project_pk = '403'
     ifc_pk = '803'
 
-    api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
-    elements_sum_by_type = {}
-    compute_elements_sum_by_type(api_response, elements_sum_by_type)
-    render_pie_chart(elements_sum_by_type)
-    print(elements_sum_by_type)
+    try:
+        api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
+        elements_sum_by_type = {}
+        compute_elements_sum_by_type(api_response, elements_sum_by_type)
+        render_pie_chart(elements_sum_by_type)
+    except:
+        raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
 if __name__ == "__main__":
     main()
