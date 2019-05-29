@@ -1,13 +1,18 @@
 # 'dataset' holds the input data for this script
 
+
 import pandas as pd
 import bimdata_api_client
-import pprint
 
+import pprint
 pp = pprint.PrettyPrinter(indent=2)
 
-access_token = dataset.iloc[0, 0]
-# access_token = '1f66d84cbfea4cdcb787124451f4b8b2'
+# Access Token assignation depending of if we are in a software or in a standard developement
+if 'dataset' in globals():
+    access_token = dataset.iloc[0, 0]
+# TO_REMOVE for PowerBI
+else:
+    access_token = '4b1abb1a562b471cbb769750db6ba56d'
 
 
 def config():
