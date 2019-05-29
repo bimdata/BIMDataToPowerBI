@@ -50,9 +50,10 @@ def main():
     try:
         api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
         elements = raw_elements_to_elements(api_response)
+        print(json.dumps(elements))
         sorted_elements = {}
-        sorted_elements['uuid'] = list(elements.keys())
-        sorted_elements['type'] = [elem['type'] for elem in elements.values()]
+        sorted_elements['uuid'] = [elem['uuid'] for elem in elements.values() if len(elem['classifications'])]
+        sorted_elements['type'] = [elem['type'] for elem in elements.values() if len(elem['classifications'])]
         sorted_elements['classifications'] = [elem['classifications'][0]['description'] for elem in elements.values() if len(elem['classifications'])]
         return pd.DataFrame(sorted_elements)
     except:
