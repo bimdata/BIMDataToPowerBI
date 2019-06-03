@@ -12,7 +12,7 @@ if 'dataset' in globals():
     access_token = dataset.iloc[0, 0]
 # TO_REMOVE for PowerBI
 else:
-    access_token = '4b1abb1a562b471cbb769750db6ba56d'
+    access_token = '8224a2927b684063abbcc1a017779427'
 
 
 def config():
@@ -55,11 +55,9 @@ def main():
     try:
         api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
         elements = raw_elements_to_elements(api_response)
-        print(json.dumps(elements))
         sorted_elements = {}
-        sorted_elements['uuid'] = [elem['uuid'] for elem in elements.values() if len(elem['classifications'])]
-        sorted_elements['type'] = [elem['type'] for elem in elements.values() if len(elem['classifications'])]
-        sorted_elements['classifications'] = [elem['classifications'][0]['description'] for elem in elements.values() if len(elem['classifications'])]
+        sorted_elements['uuid'] = [elem['uuid'] for elem in elements.values()]
+        sorted_elements['type'] = [elem['type'] for elem in elements.values()]
         return pd.DataFrame(sorted_elements)
     except:
         raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
