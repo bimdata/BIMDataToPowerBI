@@ -65,4 +65,4 @@ def main():
     except:
         raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
-sorted_elements = main()
+IfcWall = main()
