@@ -13,7 +13,7 @@ if 'dataset' in globals():
 else:
     access_token = '9864ee15dcbc4084a17c1e29f91fc725'
 
-ifc_type = 'IfcWall'
+ifc_type = 'IfcWallStandardCase'
 
 def config():
     # Configure API key authorization: Bearer
