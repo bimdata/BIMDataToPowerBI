@@ -13,7 +13,7 @@ if 'dataset' in globals():
 else:
     access_token = '9864ee15dcbc4084a17c1e29f91fc725'
 
-ifc_type = 'IfcSlab'
+ifc_type = 'IfcDoor'
 
 def config():
     # Configure API key authorization: Bearer
@@ -55,14 +55,14 @@ def main():
     try:
         api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
         elements = raw_elements_to_elements(api_response)
-        filtered_elements_by_wall = [elem for elem in elements.values() if elem['type'] == ifc_type]
-        pp.pprint(filtered_elements_by_wall)
+        filtered_elements = [elem for elem in elements.values() if elem['type'] == ifc_type]
+        pp.pprint(filtered_elements)
         elements_uuid = [k for k, elem in elements.items() if elem['type'] == ifc_type]
         sorted_elements = {}
-        sorted_elements['uuid'] = [elem['uuid'] for elem in filtered_elements_by_wall]
-        sorted_elements['type'] = [elem['type'] for elem in filtered_elements_by_wall]
+        sorted_elements['uuid'] = [elem['uuid'] for elem in filtered_elements]
+        sorted_elements['type'] = [elem['type'] for elem in filtered_elements]
         return pd.DataFrame(sorted_elements)
     except:
         raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
-IfcSlab = main()
+IfcDoor = main()

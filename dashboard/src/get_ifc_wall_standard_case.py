@@ -5,15 +5,15 @@ import pandas as pd
 import bimdata_api_client
 
 import pprint
-pp = pprint.PrettyPrinter(indent=2)
+pp = pprint.PrettyPrinter(indent=4)
 
 # Access Token assignation depending of if we are in a software or in a standard developement
 if 'dataset' in globals():
     access_token = dataset.iloc[0, 0]
-# TO_REMOVE for PowerBI
 else:
-    access_token = '8224a2927b684063abbcc1a017779427'
+    access_token = '9864ee15dcbc4084a17c1e29f91fc725'
 
+ifc_type = 'IfcWallStandardCase'
 
 def config():
     # Configure API key authorization: Bearer
@@ -55,11 +55,14 @@ def main():
     try:
         api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
         elements = raw_elements_to_elements(api_response)
+        filtered_elements = [elem for elem in elements.values() if elem['type'] == ifc_type]
+        pp.pprint(filtered_elements)
+        elements_uuid = [k for k, elem in elements.items() if elem['type'] == ifc_type]
         sorted_elements = {}
-        sorted_elements['uuid'] = [elem['uuid'] for elem in elements.values()]
-        sorted_elements['type'] = [elem['type'] for elem in elements.values()]
+        sorted_elements['uuid'] = [elem['uuid'] for elem in filtered_elements]
+        sorted_elements['type'] = [elem['type'] for elem in filtered_elements]
         return pd.DataFrame(sorted_elements)
     except:
         raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
-sorted_elements = main()
+IfcWallStandardCase = main()
