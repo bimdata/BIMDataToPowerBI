@@ -33,6 +33,13 @@ class GetElements:
         elif 'hard' in self.debug:
             pp.pprint(data)
 
+    def get_properties_from_element(self, elements, sorted_elements):
+        for element in elements:
+            for pset in element['property_sets']:
+                for prop in pset['properties']:
+                    sorted_elements[prop['definition']['name']] = prop['value']
+        
+
     def raw_elements_to_elements(self, api_response):
         elements = {}
         raw_elements = api_response.to_dict()
@@ -75,6 +82,7 @@ class GetElements:
             elements = self.raw_elements_to_elements(api_response)
             elements = self.filter_by_types(elements)
             sorted_elements = {}
+            self.get_properties_from_element(elements, sorted_elements)
             sorted_elements['uuid'] = [elem['uuid'] for elem in elements]
             sorted_elements['type'] = [elem['type'] for elem in elements]
             self.debug_data(sorted_elements, sys._getframe().f_code.co_name)
