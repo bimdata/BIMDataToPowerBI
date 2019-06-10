@@ -28,9 +28,9 @@ class GetElements:
         from sty import fg
 
         print('{}====== DEBUG IN {} ======{}'.format(fg(255, 10, 10), function_name, fg.rs))
-        if self.debug is 'soft':
+        if 'soft' in self.debug:
             print('Found {} elements in the {}'.format(len(data), type(data)))
-        elif self.debug is 'hard':
+        elif 'hard' in self.debug:
             pp.pprint(data)
 
     def raw_elements_to_elements(self, api_response):
