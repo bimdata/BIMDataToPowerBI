@@ -1,11 +1,3 @@
-'''
-    File name: get-elements-by-type-pie-chart.py
-    Author: Benjamin Audet
-    Date created: 10/05/2019
-    Date last modified: 27/05/2019
-    Python Version: 3.7
-'''
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import bimdata_api_client
