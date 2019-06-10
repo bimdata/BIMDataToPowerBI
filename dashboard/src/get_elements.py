@@ -1,19 +1,21 @@
+#!/usr/bin/env python3.7
+
 import pandas as pd
 import bimdata_api_client
+import sys
 
 import pprint
-pp = pprint.PrettyPrinter(indent=2)
+pp = pprint.PrettyPrinter(indent=2, width=120)
 
 class GetElements:
-    dataset = None
-    access_token = None
-
-    def __init__(self, dataset=None):
-        self.dataset = dataset
-        if self.dataset:
-            self.access_token = self.dataset.iloc[0, 0]
+    def __init__(self, dataset=None, ifc_type=None, debug=False, **kwargs):
+        self.ifc_type = ifc_type
+        self.debug = debug
+        if dataset is not None:
+            self.access_token = dataset.iloc[0, 0]
         else:
-            self.access_token = '22c2489c5ee141bbbcbb1480233be6f7'
+            with open('.env', 'r') as env:
+                self.access_token = env.read()
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
@@ -21,6 +23,13 @@ class GetElements:
         configuration.api_key_prefix['Authorization'] = 'Bearer'
         configuration.host = 'https://api-staging.bimdata.io'
         return configuration
+
+    def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
+        print('====== DEBUG IN {} ======'.format(function_name))
+        if self.debug is 'soft':
+            print('Found {} elements in the {}'.format(len(data), type(data)))
+        elif self.debug is 'hard':
+            pp.pprint(data)
 
     def raw_elements_to_elements(self, api_response):
         elements = {}
@@ -43,6 +52,15 @@ class GetElements:
             elements[elem['uuid']] = elem
         return elements
 
+    def filter_by_types(self, elements):
+        if self.ifc_type:
+            filtered_elements = [elem for elem in elements.values() if elem['type'] == self.ifc_type]
+            self.debug_data(filtered_elements, sys._getframe().f_code.co_name)
+            return filtered_elements
+        elements_list = [elem for elem in elements.values()]
+        self.debug_data(elements_list, sys._getframe().f_code.co_name)
+        return elements_list
+
     def run(self):
         configuration = self.config()
         ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
@@ -53,20 +71,21 @@ class GetElements:
         try:
             api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
             elements = self.raw_elements_to_elements(api_response)
+            elements = self.filter_by_types(elements)
             sorted_elements = {}
-            sorted_elements['uuid'] = [elem['uuid'] for elem in elements.values()]
-            sorted_elements['type'] = [elem['type'] for elem in elements.values()]
-            pp.pprint(sorted_elements)
+            sorted_elements['uuid'] = [elem['uuid'] for elem in elements]
+            sorted_elements['type'] = [elem['type'] for elem in elements]
+            self.debug_data(sorted_elements, sys._getframe().f_code.co_name)
             return pd.DataFrame(sorted_elements)
         except:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
-def main():
-    if 'dataset' in globals():
-        get_elements = GetElements(dataset)
-    else:
-        get_elements = GetElements()
-    Elements = get_elements.run()
-
 if __name__ == '__main__':
-    main()
+    ifc_type = 'IfcDoor'
+    if 'dataset' in globals():
+        get_elements = GetElements(dataset=dataset, ifc_type=ifc_type)
+    else:
+        get_elements = GetElements(ifc_type=ifc_type, debug='soft')
+    print("Getting elements from API...")
+    Elements = get_elements.run()
+    print("Finished")
