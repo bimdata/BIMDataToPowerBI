@@ -25,7 +25,9 @@ class GetElements:
         return configuration
 
     def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
-        print('====== DEBUG IN {} ======'.format(function_name))
+        from sty import fg
+
+        print('{}====== DEBUG IN {} ======{}'.format(fg(255, 10, 10), function_name, fg.rs))
         if self.debug is 'soft':
             print('Found {} elements in the {}'.format(len(data), type(data)))
         elif self.debug is 'hard':
