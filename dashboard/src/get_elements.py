@@ -10,7 +10,10 @@ pp = pprint.PrettyPrinter(indent=2, width=120)
 class GetElements:
     def __init__(self, dataset=None, ifc_type=None, debug=False, **kwargs):
         self.ifc_type = ifc_type
-        self.debug = debug
+        self.debug = debug or 'nodebug'
+        self.elements = {}
+        self.flat_elements = {}
+        self.property_names = []
         if dataset is not None:
             self.access_token = dataset.iloc[0, 0]
         else:
@@ -25,23 +28,58 @@ class GetElements:
         return configuration
 
     def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
-        from sty import fg
-
-        print('{}====== DEBUG IN {} ======{}'.format(fg(255, 10, 10), function_name, fg.rs))
+        if 'nodebug' in self.debug:
+            return
+        print('====== DEBUG IN {} ======'.format(function_name))
         if 'soft' in self.debug:
-            print('Found {} elements in the {}'.format(len(data), type(data)))
+            print('Found {} elements in the'.format(len(data), type(data)))
         elif 'hard' in self.debug:
             pp.pprint(data)
 
-    def get_properties_from_element(self, elements, sorted_elements):
-        for element in elements:
+    def get_all_properties_name(self):
+        for element in self.elements:
             for pset in element['property_sets']:
                 for prop in pset['properties']:
-                    sorted_elements[prop['definition']['name']] = prop['value']
-        
+                    if prop['definition']['name'] not in self.property_names:
+                        self.property_names.append(prop['definition']['name'])
+
+    def get_properties_from_elements(self):
+        self.get_all_properties_name()
+        for element in self.elements:
+            element['properties'] = []
+            for prop_name in self.property_names:
+                prop = {'value': '', 'name': prop_name}
+                element['properties'].append(prop)
+        for element in self.elements:
+            for pset in element['property_sets']:
+                for prop in pset['properties']:
+                    for prop_target in element['properties']:
+                        if prop_target['name'] == prop['definition']['name']:
+                            prop_target['value'] = prop['value'] if prop['value'] not in ['', None] else ''
+
+    def format_properties_for_power_bi(self):
+        for prop_name in self.property_names:
+            if prop_name not in self.flat_elements:
+                self.flat_elements[prop_name] = []
+        for element in self.elements:
+            for prop in element['properties']:
+                self.flat_elements[prop['name']].append(prop['value'])
+
+                        
+
+    def remove_useless_properties(self):
+        max = len(self.flat_elements['uuid'])
+        list_of_key_to_delete = []
+        for key in self.flat_elements.keys():
+            if len(self.flat_elements[key]) > max:
+                list_of_key_to_delete.append(key)
+        for key_to_delete in list_of_key_to_delete:
+            del self.flat_elements[key_to_delete]
+
+    def equalize_properties(self):
+        self.remove_useless_properties()
 
     def raw_elements_to_elements(self, api_response):
-        elements = {}
         raw_elements = api_response.to_dict()
 
         for definition in raw_elements['definitions']:
@@ -58,17 +96,13 @@ class GetElements:
             elem['classifications'] = list(map(lambda class_id: raw_elements['classifications'][class_id], elem['classifications']))
             elem['property_sets'] = list(map(lambda pset_id: raw_elements['property_sets'][pset_id], elem['psets']))
             del elem['psets']
-            elements[elem['uuid']] = elem
-        return elements
+            self.elements[elem['uuid']] = elem
 
-    def filter_by_types(self, elements):
+    def filter_by_types(self):
         if self.ifc_type:
-            filtered_elements = [elem for elem in elements.values() if elem['type'] == self.ifc_type]
-            self.debug_data(filtered_elements, sys._getframe().f_code.co_name)
-            return filtered_elements
-        elements_list = [elem for elem in elements.values()]
-        self.debug_data(elements_list, sys._getframe().f_code.co_name)
-        return elements_list
+            self.elements = [elem for elem in self.elements.values() if elem['type'] == self.ifc_type]
+            return
+        self.elements = [elem for elem in self.elements.values()]
 
     def run(self):
         configuration = self.config()
@@ -79,14 +113,15 @@ class GetElements:
 
         try:
             api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
-            elements = self.raw_elements_to_elements(api_response)
-            elements = self.filter_by_types(elements)
-            sorted_elements = {}
-            self.get_properties_from_element(elements, sorted_elements)
-            sorted_elements['uuid'] = [elem['uuid'] for elem in elements]
-            sorted_elements['type'] = [elem['type'] for elem in elements]
-            self.debug_data(sorted_elements, sys._getframe().f_code.co_name)
-            return pd.DataFrame(sorted_elements)
+            self.raw_elements_to_elements(api_response)
+            self.filter_by_types()
+            self.flat_elements = {}
+            self.flat_elements['uuid'] = [elem['uuid'] for elem in self.elements]
+            self.flat_elements['type'] = [elem['type'] for elem in self.elements]
+            self.get_properties_from_elements()
+            self.format_properties_for_power_bi()
+            self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
+            return pd.DataFrame(self.flat_elements)
         except:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
