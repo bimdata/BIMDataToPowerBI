@@ -3,6 +3,8 @@
 import pandas as pd
 import bimdata_api_client
 import sys
+import json
+import logging
 
 import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
@@ -64,8 +66,6 @@ class GetElements:
         for element in self.elements:
             for prop in element['properties']:
                 self.flat_elements[prop['name']].append(prop['value'])
-
-                        
 
     def remove_useless_properties(self):
         max = len(self.flat_elements['uuid'])
