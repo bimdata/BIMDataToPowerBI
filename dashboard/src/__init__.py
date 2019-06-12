@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.7
+
 from sty import fg
 from get_elements import GetElements
 import sys
@@ -47,10 +49,10 @@ def get_ifc_wall_standard_case(debug_type):
     print_end(get_ifc_wall_standard_case)
 
 if __name__ == '__main__':
-    debug_type = sys.argv[1] if sys.argv[1] else None
-    get_ifc_doors(debug_type)
-    get_ifc_railling(debug_type)
-    get_ifc_roof(debug_type)
-    get_ifc_slab(debug_type)
+    debug_type = sys.argv[1] if len(sys.argv) == 2 else 'nodebug'
+    # get_ifc_doors(debug_type)
+    # get_ifc_railling(debug_type)
+    # get_ifc_roof(debug_type)
+    # get_ifc_slab(debug_type)
     get_ifc_wall(debug_type)
-    get_ifc_wall_standard_case(debug_type)
+    # get_ifc_wall_standard_case(debug_type)
