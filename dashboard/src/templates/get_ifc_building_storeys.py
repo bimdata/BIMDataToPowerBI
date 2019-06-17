@@ -17,10 +17,16 @@ class GetElements:
         self.flat_elements = {}
         self.property_names = []
         if dataset is not None:
-            self.access_token = dataset.iloc[0, 0]
+            self.access_token = dataset['access_token'][0]
+            self.cloud_pk = str(dataset['cloud_id'][0])
+            self.project_pk = str(dataset['project_id'][0])
+            self.ifc_pk = str(dataset['ifc_id'][0])
         else:
             with open('.env', 'r') as env:
-                self.access_token = env.read()
+                self.access_token = env.readline().strip()
+                self.cloud_pk = env.readline().strip()
+                self.project_pk = env.readline().strip()
+                self.ifc_pk = env.readline().strip()
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
@@ -34,7 +40,7 @@ class GetElements:
             return
         print('====== DEBUG IN {} ======'.format(function_name))
         if 'soft' in self.debug:
-            print('Found {} elements in the {}'.format(len(data), type(data)))
+            print('Found {} elements in the'.format(len(data), type(data)))
         elif 'hard' in self.debug:
             pp.pprint(data)
 
@@ -107,12 +113,9 @@ class GetElements:
     def run(self):
         configuration = self.config()
         ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
-        cloud_pk = '305'
-        project_pk = '403'
-        ifc_pk = '803'
 
         try:
-            api_response = ifc_api.get_raw_elements(cloud_pk, ifc_pk, project_pk)
+            api_response = ifc_api.get_raw_elements(self.cloud_pk, self.ifc_pk, self.project_pk)
             self.raw_elements_to_elements(api_response)
             self.filter_by_types()
             self.flat_elements = {}
@@ -120,7 +123,7 @@ class GetElements:
             self.flat_elements['type'] = [elem['type'] for elem in self.elements]
             self.get_properties_from_elements()
             self.format_properties_for_power_bi()
-            self.debug_data(self.elements, sys._getframe().f_code.co_name)
+            self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
             return pd.DataFrame(self.flat_elements)
         except:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
