@@ -130,9 +130,9 @@ class GetElements:
 
 if __name__ == '__main__':
     if 'dataset' in globals():
-        get_elements = GetElements(dataset=dataset, ifc_type='IfcDoor')
+        get_elements = GetElements(dataset=dataset, ifc_type='IfcType')
     else:
-        get_elements = GetElements(ifc_type='IfcDoor', debug='soft')
+        get_elements = GetElements(ifc_type='IfcType', debug='soft')
     print("Getting elements from API...")
-    IfcDoors = get_elements.run()
+    IfcTypes = get_elements.run()
     print("Finished")
