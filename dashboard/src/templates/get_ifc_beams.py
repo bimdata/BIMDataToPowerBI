@@ -10,9 +10,10 @@ import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
 
 class GetElements:
-    def __init__(self, dataset=None, ifc_type=None, debug=False, **kwargs):
+    def __init__(self, dataset=None, ifc_type=None, debug='nodebug', properties_options={'excludes': []}, **kwargs):
         self.ifc_type = ifc_type
-        self.debug = debug or 'nodebug'
+        self.debug = debug
+        self.properties_options = properties_options
         self.elements = {}
         self.flat_elements = {}
         self.property_names = []
@@ -48,7 +49,7 @@ class GetElements:
         for element in self.elements:
             for pset in element['property_sets']:
                 for prop in pset['properties']:
-                    if prop['definition']['name'] not in self.property_names:
+                    if prop['definition']['name'] not in self.property_names and prop['definition']['name'] not in self.properties_options['excludes']:
                         self.property_names.append(prop['definition']['name'])
 
     def get_properties_from_elements(self):
@@ -129,10 +130,5 @@ class GetElements:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
 if __name__ == '__main__':
-    if 'dataset' in globals():
-        get_elements = GetElements(dataset=dataset, ifc_type='IfcBeam')
-    else:
-        get_elements = GetElements(ifc_type='IfcBeam', debug='soft')
-    print("Getting elements from API...")
+    get_elements = GetElements(dataset=dataset, ifc_type='IfcBeam', properties_options={'excludes': []})
     IfcBeams = get_elements.run()
-    print("Finished")
