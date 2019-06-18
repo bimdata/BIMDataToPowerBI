@@ -17,7 +17,8 @@ types = [
     'IfcWall',
     'IfcWallStandardCase',
     'IfcWindow',
-    'IfcZone'
+    'IfcZone',
+    'IfcSpace'
 ]
 
 with open('../get_elements.py', 'r') as model:
