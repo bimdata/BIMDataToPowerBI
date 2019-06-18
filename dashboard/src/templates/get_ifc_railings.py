@@ -10,7 +10,7 @@ import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
 
 class GetElements:
-    def __init__(self, dataset=None, ifc_type=None, debug='nodebug', properties_options={'excludes': []}, **kwargs):
+    def __init__(self, dataset=None, ifc_type=None, debug='nodebug', properties_options={'excludes': [], 'includes': []}, **kwargs):
         self.ifc_type = ifc_type
         self.debug = debug
         self.properties_options = properties_options
@@ -53,7 +53,10 @@ class GetElements:
                         self.property_names.append(prop['definition']['name'])
 
     def get_properties_from_elements(self):
-        self.get_all_properties_name()
+        if len(self.properties_options['includes']) > 0:
+            self.property_names = self.properties_options['includes']
+        else:
+            self.get_all_properties_name()
         for element in self.elements:
             element['properties'] = []
             for prop_name in self.property_names:
@@ -130,5 +133,5 @@ class GetElements:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
 if __name__ == '__main__':
-    get_elements = GetElements(dataset=dataset, ifc_type='IfcRailing', properties_options={'excludes': []})
+    get_elements = GetElements(dataset=dataset, ifc_type='IfcRailing', properties_options={'excludes': [], 'includes': []})
     IfcRailings = get_elements.run()
