@@ -5,6 +5,9 @@ import bimdata_api_client
 import sys
 import json
 import logging
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
@@ -24,10 +27,10 @@ class GetElements:
             self.ifc_pk = str(dataset['ifc_id'][0])
         else:
             with open('.env', 'r') as env:
-                self.access_token = env.readline().strip()
-                self.cloud_pk = env.readline().strip()
-                self.project_pk = env.readline().strip()
-                self.ifc_pk = env.readline().strip()
+                self.access_token = os.getenv('TOKEN')
+                self.cloud_pk = os.getenv('CLOUD_ID')
+                self.project_pk = os.getenv('PROJECT_ID')
+                self.ifc_pk = os.getenv('IFC_ID')
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
