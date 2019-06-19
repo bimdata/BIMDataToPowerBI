@@ -5,9 +5,7 @@ import bimdata_api_client
 import sys
 import json
 import logging
-from dotenv import load_dotenv
-load_dotenv()
-import os
+
 
 import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
@@ -19,13 +17,18 @@ class GetElements:
         self.properties_options = properties_options
         self.elements = {}
         self.flat_elements = {}
-        self.property_names = []
+        self.properties = {}
+        self.properties['name'] = []
+        self.properties['pset'] = []
         if dataset is not None:
             self.access_token = dataset['access_token'][0]
             self.cloud_pk = str(dataset['cloud_id'][0])
             self.project_pk = str(dataset['project_id'][0])
             self.ifc_pk = str(dataset['ifc_id'][0])
         else:
+            from dotenv import load_dotenv
+            load_dotenv()
+            import os
             with open('.env', 'r') as env:
                 self.access_token = os.getenv('TOKEN')
                 self.cloud_pk = os.getenv('CLOUD_ID')
@@ -50,19 +53,20 @@ class GetElements:
 
     def get_all_properties_name(self):
         if len(self.properties_options['includes']) > 0:
-            self.property_names = self.properties_options['includes']
+            self.properties['name'] = self.properties_options['includes']
             return
         for element in self.elements:
             for pset in element['property_sets']:
                 for prop in pset['properties']:
-                    if prop['definition']['name'] not in self.property_names and prop['definition']['name'] not in self.properties_options['excludes']:
-                        self.property_names.append(prop['definition']['name'])
+                    if prop['definition']['name'] not in self.properties['name'] and prop['definition']['name'] not in self.properties_options['excludes']:
+                        self.properties['name'].append(prop['definition']['name'])
+                        self.properties['pset'].append(pset['name'])
 
     def get_properties_from_elements(self):
         self.get_all_properties_name()
         for element in self.elements:
             element['properties'] = []
-            for prop_name in self.property_names:
+            for prop_name in self.properties['name']:
                 prop = {'value': '', 'name': prop_name}
                 element['properties'].append(prop)
         for element in self.elements:
@@ -73,12 +77,13 @@ class GetElements:
                             prop_target['value'] = prop['value'] if prop['value'] not in ['', None] else ''
 
     def format_properties_for_power_bi(self):
-        for prop_name in self.property_names:
+        for k, prop_name in enumerate(self.properties['name']):
             if prop_name not in self.flat_elements:
-                self.flat_elements[prop_name] = []
+                self.flat_elements['{}.{}'.format(self.properties['pset'][k], prop_name)] = []
         for element in self.elements:
             for prop in element['properties']:
-                self.flat_elements[prop['name']].append(prop['value'])
+                index = self.properties['name'].index(prop['name'])
+                self.flat_elements['{}.{}'.format(self.properties['pset'][index], prop['name'])].append(prop['value'])
 
     def remove_useless_properties(self):
         max = len(self.flat_elements['uuid'])
@@ -130,11 +135,11 @@ class GetElements:
             self.flat_elements['type'] = [elem['type'] for elem in self.elements]
             self.get_properties_from_elements()
             self.format_properties_for_power_bi()
-            # self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
+            self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
             return pd.DataFrame(self.flat_elements)
         except:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
 if __name__ == '__main__':
-    get_elements = GetElements(dataset=dataset, ifc_type='IfcType', properties_options={'excludes': [], 'includes': []})
+    get_elements = GetElements(dataset=dataset, ifc_type='IfcType', properties_options={'excludes': [], 'includes': [], 'pset_name': True})
     IfcTypes = get_elements.run()

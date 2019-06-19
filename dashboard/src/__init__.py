@@ -56,10 +56,10 @@ def get_ifc_wall_standard_case(debug_type, excludes=[], includes=[]):
 
 if __name__ == '__main__':
     debug_type = sys.argv[1] if len(sys.argv) == 2 else 'nodebug'
-    # get_ifc_doors(debug_type)
+    get_ifc_doors(debug_type)
     # get_ifc_railling(debug_type)
     # get_ifc_roof(debug_type)
     # get_ifc_slab(debug_type)
-    get_ifc_space(debug_type)
+    # get_ifc_space(debug_type)
     # get_ifc_wall(debug_type, includes=['Width'])
     # get_ifc_wall_standard_case(debug_type)
