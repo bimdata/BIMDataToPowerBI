@@ -41,11 +41,14 @@ class GetElements:
             return
         print('====== DEBUG IN {} ======'.format(function_name))
         if 'soft' in self.debug:
-            print('Found {} elements in the'.format(len(data), type(data)))
+            print('Found {} elements in the {}'.format(len(data), type(data)))
         elif 'hard' in self.debug:
             pp.pprint(data)
 
     def get_all_properties_name(self):
+        if len(self.properties_options['includes']) > 0:
+            self.property_names = self.properties_options['includes']
+            return
         for element in self.elements:
             for pset in element['property_sets']:
                 for prop in pset['properties']:
@@ -53,10 +56,7 @@ class GetElements:
                         self.property_names.append(prop['definition']['name'])
 
     def get_properties_from_elements(self):
-        if len(self.properties_options['includes']) > 0:
-            self.property_names = self.properties_options['includes']
-        else:
-            self.get_all_properties_name()
+        self.get_all_properties_name()
         for element in self.elements:
             element['properties'] = []
             for prop_name in self.property_names:
@@ -127,7 +127,7 @@ class GetElements:
             self.flat_elements['type'] = [elem['type'] for elem in self.elements]
             self.get_properties_from_elements()
             self.format_properties_for_power_bi()
-            self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
+            # self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
             return pd.DataFrame(self.flat_elements)
         except:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")

@@ -42,6 +42,12 @@ def get_ifc_wall(debug_type, excludes=[], includes=[]):
     Elements = get_elements_wall.run()
     print_end(get_ifc_wall)
 
+def get_ifc_space(debug_type, excludes=[], includes=[]):
+    get_elements_space = GetElements(ifc_type='IfcSpace', debug=debug_type, properties_options={'excludes': excludes, 'includes': includes})
+    print_begin(get_ifc_space)
+    Elements = get_elements_space.run()
+    print_end(get_ifc_space)
+
 def get_ifc_wall_standard_case(debug_type, excludes=[], includes=[]):
     get_elements_wall_standard_case = GetElements(ifc_type='IfcWallStandardCase', debug=debug_type, properties_options={'excludes': excludes, 'includes': includes})
     print_begin(get_ifc_wall_standard_case)
@@ -54,5 +60,6 @@ if __name__ == '__main__':
     # get_ifc_railling(debug_type)
     # get_ifc_roof(debug_type)
     # get_ifc_slab(debug_type)
-    get_ifc_wall(debug_type, includes=['Width'])
+    get_ifc_space(debug_type)
+    # get_ifc_wall(debug_type, includes=['Width'])
     # get_ifc_wall_standard_case(debug_type)
