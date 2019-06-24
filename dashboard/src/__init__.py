@@ -55,6 +55,7 @@ def get_ifc_wall_standard_case(debug_type, excludes=[], includes=[]):
     print_end(get_ifc_wall_standard_case)
 
 if __name__ == '__main__':
+    # Here, for test purposes, you can execute __init__.py with an argument like : ./__init__.py [hard|soft|nodebug]
     debug_type = sys.argv[1] if len(sys.argv) == 2 else 'nodebug'
     get_ifc_doors(debug_type)
     # get_ifc_railling(debug_type)
