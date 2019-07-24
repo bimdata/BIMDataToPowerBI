@@ -20,6 +20,7 @@ class GetElements:
         self.properties = {}
         self.properties['name'] = []
         self.properties['pset'] = []
+        self.host = 'https://api-staging.bimdata.io'
         if dataset is not None:
             self.access_token = dataset['access_token'][0]
             self.cloud_pk = str(dataset['cloud_id'][0])
@@ -33,11 +34,12 @@ class GetElements:
             self.cloud_pk = os.getenv('CLOUD_ID')
             self.project_pk = os.getenv('PROJECT_ID')
             self.ifc_pk = os.getenv('IFC_ID')
+            self.host = os.getenv('HOST')
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
         configuration.access_token = self.access_token
-        configuration.host = 'https://api-staging.bimdata.io'
+        configuration.host = self.host
         return configuration
 
     def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
