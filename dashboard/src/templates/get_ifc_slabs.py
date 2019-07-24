@@ -36,8 +36,7 @@ class GetElements:
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
-        configuration.api_key['Authorization'] = self.access_token
-        configuration.api_key_prefix['Authorization'] = 'Bearer'
+        configuration.access_token = self.access_token
         configuration.host = 'https://api-staging.bimdata.io'
         return configuration
 
