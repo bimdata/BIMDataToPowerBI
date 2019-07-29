@@ -44,12 +44,13 @@ class GetElements:
         self.properties = {}
         self.properties['name'] = []
         self.properties['pset'] = []
-        self.host = 'https://api-staging.bimdata.io'
+        self.host = 'staging'
         if dataset is not None:
             self.access_token = dataset['access_token'][0]
             self.cloud_pk = str(dataset['cloud_id'][0])
             self.project_pk = str(dataset['project_id'][0])
             self.ifc_pk = str(dataset['ifc_id'][0])
+            self.host = str(dataset['host'][0])
         else:
             from dotenv import load_dotenv
             load_dotenv('.env')
@@ -63,7 +64,7 @@ class GetElements:
     def config(self):
         configuration = bimdata_api_client.Configuration()
         configuration.access_token = self.access_token
-        configuration.host = self.host
+        configuration.host = f'https://api-{self.host}.bimdata.io'
         return configuration
 
     def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
