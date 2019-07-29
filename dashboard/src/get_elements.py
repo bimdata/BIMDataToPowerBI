@@ -47,7 +47,7 @@ class GetElements:
             return
         print('====== DEBUG IN {} ======'.format(function_name))
         if 'soft' in self.debug:
-            print('Found {} elements in the {}'.format(len(data), type(data)))
+            print('Found {} elements in the {}'.format(len(data) - 2, type(data)))
         elif 'hard' in self.debug:
             pp.pprint(data)
 
