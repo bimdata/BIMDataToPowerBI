@@ -6,6 +6,7 @@
 '''
 
 import re
+import os
 
 types = [
     'IfcBeam',
@@ -26,11 +27,14 @@ types = [
     'IfcZone',
 ]
 
-with open('../get_elements.py', 'r') as model:
+with open('./get_elements.py', 'r') as model:
     model_content = model.read()
 
+path = './templates'
+if not os.path.exists(path):
+    os.makedirs(path)
 for type in types:
-    with open('get_{}s.py'.format('_'.join(re.split('(?=[A-Z])', type)[1:]).lower()), 'w') as f:
+    with open(f"{path}/get_{'_'.join(re.split('(?=[A-Z])', type)[1:]).lower()}s.py", 'w') as f:
         f.write(model_content.replace('IfcType', type))
 
 

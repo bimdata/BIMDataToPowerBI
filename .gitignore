@@ -4,3 +4,5 @@ __pycache__/
 dashboard/src/\.env
 
 dashboard/src/csv_export/
+
+dashboard/src/templates/
