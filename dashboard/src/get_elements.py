@@ -127,7 +127,6 @@ class GetElements:
         ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
 
         try:
-            print(self.cloud_pk, self.project_pk, self.ifc_pk)
             api_response = ifc_api.get_raw_elements(self.cloud_pk, self.ifc_pk, self.project_pk)
             self.raw_elements_to_elements(api_response)
             self.filter_by_types()

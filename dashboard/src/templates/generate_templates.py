@@ -13,12 +13,12 @@ types = [
     'IfcRoof',
     'IfcSite',
     'IfcSlab',
+    'IfcSpace'
     'IfcStair',
     'IfcWall',
     'IfcWallStandardCase',
     'IfcWindow',
     'IfcZone',
-    'IfcSpace'
 ]
 
 with open('../get_elements.py', 'r') as model:
