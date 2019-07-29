@@ -10,6 +10,30 @@ import logging
 import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
 
+'''
+    GetElements class
+    Constructor parameters:
+        dataset: 
+            This is the Power BI global variable that contains a pandas.DataFrame with the datas of the previous step into the request.
+            It's used to get the parameters in Power BI, namely : Access Token, cloud ID, project ID and IFC ID
+            It can be None in the case where we are executing these scripts directly from a terminal. So we load the parameters from a .env file
+            with keys: TOKEN, CLOUD_ID, PROJECT_ID, IFC_ID
+        ifc_type:
+            This is a string variable that contains the IfcType.
+            Examples: IfcDoor, IfcWall...
+            If you don't pass this argument, it will return all the elements without filtering by IfcType.
+        debug: 
+            Used to define the behavior of the debug that will be applied.
+            There are 3 strings that can be understood : 'hard', 'soft' and 'nodebug'
+            hard: if you want to debug the whole datas
+            soft: if you want to debug the len of array that are retrieved
+            nodebug: if you don't want any debug
+        properties_options:
+            It's a dict with 2 lists in it with keys : excludes and includes.
+            You can specify property names to exclude in the excludes list
+            You can specify property names to ONLY includes in the includes list
+            This is working with XOR logic, if there are elements in includes, excludes will not be considered
+'''
 class GetElements:
     def __init__(self, dataset=None, ifc_type=None, debug='nodebug', properties_options={'excludes': [], 'includes': []}, **kwargs):
         self.ifc_type = ifc_type

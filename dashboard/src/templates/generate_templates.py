@@ -1,5 +1,10 @@
 #!/usr/bin/env python3.7
 
+'''
+    This script generates Python scripts based on get_elements.py file and replace IfcType by one the IfcType in the types list below.
+    If you want to add an IfcType, just add it in the list.
+'''
+
 import re
 
 types = [
