@@ -19,7 +19,7 @@ types = [
     'IfcRoof',
     'IfcSite',
     'IfcSlab',
-    'IfcSpace'
+    'IfcSpace',
     'IfcStair',
     'IfcWall',
     'IfcWallStandardCase',
