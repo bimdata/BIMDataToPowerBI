@@ -49,7 +49,7 @@ class GetElements:
             self.access_token = dataset['access_token'][0]
             self.cloud_pk = str(dataset['cloud_id'][0])
             self.project_pk = str(dataset['project_id'][0])
-            self.ifc_pk = str(dataset['ifc_id'][0])
+            self.ifc_pks = str(dataset['ifc_id'][0]).split(',')
             self.host = str(dataset['host'][0])
         else:
             from dotenv import load_dotenv
@@ -58,7 +58,8 @@ class GetElements:
             self.access_token = os.getenv('TOKEN')
             self.cloud_pk = os.getenv('CLOUD_ID')
             self.project_pk = os.getenv('PROJECT_ID')
-            self.ifc_pk = os.getenv('IFC_ID')
+            self.ifc_pks = os.getenv('IFC_ID').split(',')
+            print(self.ifc_pks)
             self.host = os.getenv('HOST')
 
     def config(self):
@@ -152,15 +153,16 @@ class GetElements:
         ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
 
         try:
-            api_response = ifc_api.get_raw_elements(self.cloud_pk, self.ifc_pk, self.project_pk)
-            self.raw_elements_to_elements(api_response)
+            for ifc_pk in self.ifc_pks:
+                api_response = ifc_api.get_raw_elements(self.cloud_pk, ifc_pk, self.project_pk)
+                self.raw_elements_to_elements(api_response)
             self.filter_by_types()
             self.flat_elements = {}
             self.flat_elements['uuid'] = [elem['uuid'] for elem in self.elements]
             self.flat_elements['type'] = [elem['type'] for elem in self.elements]
             self.get_properties_from_elements()
             self.format_properties_for_power_bi()
-            self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
+            self.debug_data(self.flat_elements['uuid'], sys._getframe().f_code.co_name)
             return pd.DataFrame(self.flat_elements)
         except:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
