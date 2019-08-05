@@ -165,6 +165,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', help="enable debug messages, soft will give you the length of the retrieved datas, hard will print everything", choices=['soft', 'hard'])
     parser.add_argument('-e', '--export', help="enable CSV export", action="store_true")
+    parser.add_argument('-t', '--type', help="Select a specific type", choices=['IfcBeam', 'IfcBuildingStorey', 'IfcCurtainWall', 'IfcDoor', 'IfcPlate', 'IfcProject', 'IfcRailing', 'IfcRoof', 'IfcSite', 'IfcSlab', 'IfcSpace', 'IfcStair', 'IfcWall', 'IfcWallStandardCase', 'IfcWindow', 'IfcZone'])
     args = parser.parse_args()
     if args.debug != None:
         debug_type = args.debug
@@ -175,9 +176,12 @@ if __name__ == '__main__':
     path = f'./csv_export/{now.strftime("%d_%m_%y_%H-%M-%S")}'
     if not os.path.exists(path):
         os.makedirs(path)
-    for ifcType in ifcTypes.keys():
-        Elements = ifcTypes[ifcType](debug_type)
-        if args.export:
-            with open(f'{path}/{ifcType}.csv', 'a+') as f:
-                f.truncate(0)
-                f.write(Elements.to_csv()[1:])
+    if args.type:
+        Elements = ifcTypes[args.type](debug_type)
+    else:
+        for ifcType in ifcTypes.keys():
+            Elements = ifcTypes[ifcType](debug_type)
+            if args.export:
+                with open(f'{path}/{ifcType}.csv', 'a+') as f:
+                    f.truncate(0)
+                    f.write(Elements.to_csv()[1:])
