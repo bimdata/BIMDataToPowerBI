@@ -34,6 +34,7 @@ path = './templates'
 if not os.path.exists(path):
     os.makedirs(path)
 for type in types:
+    print(f"{path}/get_{'_'.join(re.split('(?=[A-Z])', type)[1:]).lower()}s.py created.")
     with open(f"{path}/get_{'_'.join(re.split('(?=[A-Z])', type)[1:]).lower()}s.py", 'w') as f:
         f.write(model_content.replace('IfcType', type))
 
