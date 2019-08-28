@@ -61,8 +61,13 @@ class GetElements:
         self.properties = {}
         self.properties['name'] = []
         self.properties['pset'] = []
-        self.host = 'staging'
+        self.chosen_host = 'staging'
         self.types_ref = {}
+        self.hosts = {
+            'staging': 'https://api-staging.bimdata.io',
+            'next': 'https://api-next.bimdata.io',
+            'beta': 'https://api-beta.bimdata.io'
+        }
         if dataset is not None:
             self.access_token = dataset['access_token'][0]
             self.cloud_pk = str(dataset['cloud_id'][0])
@@ -77,13 +82,12 @@ class GetElements:
             self.cloud_pk = os.getenv('CLOUD_ID')
             self.project_pk = os.getenv('PROJECT_ID')
             self.ifc_pks = os.getenv('IFC_ID').split(',')
-            print(self.ifc_pks)
-            self.host = os.getenv('HOST')
+            self.chosen_host = os.getenv('HOST')
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
         configuration.access_token = self.access_token
-        configuration.host = f'https://api-{self.host}.bimdata.io'
+        configuration.host = self.hosts[self.chosen_host]
         return configuration
 
     def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
@@ -196,7 +200,7 @@ class GetElements:
             self.get_properties_from_elements()
             self.format_properties_for_power_bi()
             self.debug_data(self.flat_elements, sys._getframe().f_code.co_name)
-            # self.fill_void()
+            # self.fill_void() 
             self.df = pd.DataFrame(self.flat_elements)
             # self.define_column_types()
             print("--- %s seconds ---" % (time.time() - start_time))
