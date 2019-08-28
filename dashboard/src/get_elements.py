@@ -61,7 +61,7 @@ class GetElements:
         self.properties = {}
         self.properties['name'] = []
         self.properties['pset'] = []
-        self.chosen_host = 'staging'
+        self.chosen_host = 'beta'
         self.types_ref = {}
         self.hosts = {
             'staging': 'https://api-staging.bimdata.io',
