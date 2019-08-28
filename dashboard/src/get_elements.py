@@ -11,7 +11,7 @@ import time
 import pprint
 pp = pprint.PrettyPrinter(indent=2, width=120)
 
-getcontext().prec = 3
+getcontext().prec = 6
 
 '''
     GetElements class
@@ -118,7 +118,7 @@ class GetElements:
                 for prop in pset['properties']:
                     for prop_target in element['properties']:
                         if prop_target['name'] == prop['definition']['name']:
-                            value = prop['value'] # if prop['value'] not in ['', None] else 'yolo'
+                            value = prop['value'] if prop['value'] not in ['', None] else ''
                             prop_target['value'] = value
                             index = self.properties['name'].index(prop_target['name'])
                             key = f"{self.properties['pset'][index]}.{prop_target['name']}"
@@ -166,12 +166,6 @@ class GetElements:
             del elem['psets']
             self.elements.append(elem)
 
-    def filter_by_types(self):
-        if self.ifc_type:
-            self.elements = [elem for elem in self.elements.values() if elem['type'] == self.ifc_type]
-            return
-        self.elements = [elem for elem in self.elements.values()]
-
     def define_column_types(self):
         for key in self.types_ref:
             c = Counter(self.types_ref[key])
@@ -196,7 +190,6 @@ class GetElements:
                 api_response = ifc_api.get_raw_elements(self.cloud_pk, ifc_pk, self.project_pk, type=self.ifc_type)
                 self.raw_elements_to_elements(api_response)
                 print(f'good for {ifc_pk}')
-                # self.filter_by_types()
             self.flat_elements = {}
             self.flat_elements['UUID'] = [elem['uuid'] for elem in self.elements]
             self.flat_elements['TYPE'] = [elem['type'] for elem in self.elements]
