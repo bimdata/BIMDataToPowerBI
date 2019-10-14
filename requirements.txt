@@ -1,4 +1,4 @@
-bimdata-api-client==3.1.1
-pandas==0.24.2
-requests==2.18.4
-matplotlib==3.1.0
+bimdata-api-client==4.1.0
+pandas==0.25.1
+requests==2.22.0
+matplotlib==3.1.1

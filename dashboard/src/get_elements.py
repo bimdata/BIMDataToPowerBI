@@ -52,8 +52,7 @@ def smart_cast(value):
     return value
 
 class GetElements:
-    def __init__(self, dataset=None, ifc_type=None, debug='nodebug', properties_options={'excludes': [], 'includes': []}, **kwargs):
-        self.ifc_type = ifc_type
+    def __init__(self, dataset=None, debug='nodebug', properties_options={'excludes': [], 'includes': []}, **kwargs):
         self.debug = debug
         self.properties_options = properties_options
         self.elements = []
@@ -61,19 +60,14 @@ class GetElements:
         self.properties = {}
         self.properties['name'] = []
         self.properties['pset'] = []
-        self.chosen_host = 'beta'
         self.types_ref = {}
-        self.hosts = {
-            'staging': 'https://api-staging.bimdata.io',
-            'next': 'https://api-next.bimdata.io',
-            'beta': 'https://api-beta.bimdata.io'
-        }
         if dataset is not None:
             self.access_token = dataset['access_token'][0]
             self.cloud_pk = str(dataset['cloud_id'][0])
             self.project_pk = str(dataset['project_id'][0])
-            self.ifc_pks = str(dataset['ifc_id'][0]).split(',')
-            self.host = str(dataset['host'][0])
+            self.ifc_pks = str(dataset['ifc_id']).split(',')
+            self.api_url = str(dataset['api_url'][0])
+            self.ifc_type = str(dataset['ifc_type'][0])
         else:
             from dotenv import load_dotenv
             load_dotenv('.env')
@@ -82,12 +76,13 @@ class GetElements:
             self.cloud_pk = os.getenv('CLOUD_ID')
             self.project_pk = os.getenv('PROJECT_ID')
             self.ifc_pks = os.getenv('IFC_ID').split(',')
-            self.chosen_host = os.getenv('HOST')
+            self.api_url = os.getenv('API_URL')
+            self.ifc_type = os.getenv('IFC_TYPE')
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
         configuration.access_token = self.access_token
-        configuration.host = self.hosts[self.chosen_host]
+        configuration.host = self.api_url
         return configuration
 
     def debug_data(self, data, function_name='MISSING_FUNCTION_NAME'):
@@ -209,5 +204,5 @@ class GetElements:
             raise Exception("An error occured during data retrieving, try to refresh the token with the request BIMDataMicrosoftConnect.RefreshToken()")
 
 if __name__ == '__main__':
-    get_elements = GetElements(dataset=dataset, ifc_type='IfcType', properties_options={'excludes': [], 'includes': [], 'pset_name': True})
-    IfcTypes = get_elements.run()
+    get_elements = GetElements(dataset=dataset, properties_options={'excludes': [], 'includes': [], 'pset_name': True})
+    BIMData_info = get_elements.run()

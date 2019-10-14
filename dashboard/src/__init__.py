@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--debug', help="enable debug messages, soft will give you the length of the retrieved datas, hard will print everything", choices=['soft', 'hard'])
     parser.add_argument('-e', '--export', help="enable CSV export", action="store_true")
-    parser.add_argument('-t', '--type', help="Select a specific type", choices=['IfcBeam', 'IfcBuildingStorey', 'IfcCurtainWall', 'IfcDoor', 'IfcPlate', 'IfcProject', 'IfcRailing', 'IfcRoof', 'IfcSite', 'IfcSlab', 'IfcSpace', 'IfcStair', 'IfcWall', 'IfcWallStandardCase', 'IfcWindow', 'IfcZone'])
+    parser.add_argument('-t', '--type', help="Select a specific type", choicesifcTypes)
     args = parser.parse_args()
     if args.debug != None:
         debug_type = args.debug
