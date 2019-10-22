@@ -63,5 +63,5 @@ class GetClassifications:
         return self.df
 
 if __name__ == "__main__":
-    get_elements = GetClassifications(dataset=dataset)
-    BIMData_info = get_elements.run()
+    get_classifications = GetClassifications(dataset=dataset)
+    BIMData_info = get_classifications.run()

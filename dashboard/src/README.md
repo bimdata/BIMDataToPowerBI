@@ -34,6 +34,8 @@ replace Your_IFC_Type by the type you want (eg: IfcWall, IfcDoor or IfcWallStand
 
 In the "transform" tab, click on "add a python script" and copy-paste the content of get_element.py.
 
+
+
 ## Troubleshooting
 
 ### If you get the error "information about a data source is required"
@@ -43,3 +45,6 @@ Go to "Source parameters", set both "BIMData" and "python" confidentiality level
 ### If numbers are seen as text and trying to force the type fails
 Go to "file => options & parameters => options => Active file => region parameters => force to English (United-States)"
 
+### If you get a Python error saying you're credentials are invalid
+You need to refresh your access to BIMData.io. To do so, click on "source" in the "applied steps" and a message inviting you to refresh your connection will appear.
+Click on 'Login with another account' (Even if you don't change the account), then "login".
