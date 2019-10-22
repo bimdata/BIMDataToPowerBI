@@ -8,6 +8,7 @@ class GetElements:
         self.project_pk = str(dataset["project_id"][0])
         self.ifc_pks = str(dataset["ifc_id"][0]).split(",")
         self.api_url = dataset["api_url"][0]
+        self.ifc_type = str(dataset["ifc_type"][0])
 
         self.elements = []
         self.formatted_elements = {}
@@ -62,7 +63,7 @@ class GetElements:
         ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
 
         for ifc_pk in self.ifc_pks:
-            api_response = ifc_api.get_raw_elements(self.cloud_pk, ifc_pk, self.project_pk)
+            api_response = ifc_api.get_raw_elements(self.cloud_pk, ifc_pk, self.project_pk, type=self.ifc_type)
             self.raw_elements_to_elements(api_response)
         
         self.get_properties_from_elements()

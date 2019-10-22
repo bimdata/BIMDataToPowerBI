@@ -20,7 +20,39 @@ All folders have their owns `.pbix` and `.py` allowing you to see the code side 
 ## Installation
 
 Once you have installed all the pre-requisites tools, *clone* the repository.
-Then in the folder, type the following command-line:
+Then in the folder, type the following command-line (in PowerShell):
 `$> python install.py`
-or
-`$> py install.py`
+
+
+
+## Usage
+Create 4 parameters:
+ - cloudId
+ - projectId
+ - ifcId
+ - apiUrl
+
+ifcId can be a single value or many values split by a comma (eg: 1842,5871,12,456)
+
+Data is retrieved by IfcType.
+
+To get data from BIMData, create an empty Query then add:
+`= Table.FromColumns({{cloudId}, {projectId}, {ifcId}, {BIMData.GetToken()}, {apiUrl}, {"IfcWallStandardCase"}}, {"cloud_id", "project_id", "ifc_id", "access_token", "api_url", "ifc_type"})`
+
+replace Your_IFC_Type by the type you want (eg: IfcWall, IfcDoor or IfcWallStandardCase)
+
+In the "transform" tab, click on "add a python script" and copy-paste the content of get_element.py.
+
+
+## Troubleshooting
+
+### If you get the error "information about a data source is required"
+Go to "Source parameters", set both "BIMData" and "python" confidentiality level to "Public" then try again
+
+
+### If numbers are seen as text and trying to force the type fails
+Go to "file => options & parameters => options => Active file => region parameters => force to English (United-States)"
+
+### If you get a Python error saying you're credentials are invalid
+You need to refresh your access to BIMData.io. To do so, click on "source" in the "applied steps" and a message inviting you to refresh your connection will appear.
+Click on 'Login with another account' (Even if you don't change the account), then "login".
