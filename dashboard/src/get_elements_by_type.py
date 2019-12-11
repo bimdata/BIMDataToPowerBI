@@ -1,5 +1,23 @@
+import json
 import pandas as pd
 import bimdata_api_client
+    
+def smart_cast(value):
+    if value not in {"true", "false", None}:
+        try:
+            a = float(value)
+            if a.is_integer() and "." not in value:
+                return int(a)
+            return a
+        except ValueError:
+            return value
+    else:
+        if value == "true":
+            return True
+        if value == "false":
+            return False
+        return None
+    
 
 class GetElements:
     def __init__(self, dataset, **kwargs):
@@ -36,7 +54,7 @@ class GetElements:
             for prop in element["attributes"]["properties"]:
                 full_name = ("Attributes", prop["definition"]["name"])
                 self.all_properties.add(full_name)
-                element["values"][full_name] = prop["value"]
+                element["values"][full_name] = smart_cast(prop["value"])
 
         sort_by_prop_name = sorted(self.all_properties, key=lambda name: name[1])
         sort_by_pset_name = sorted(sort_by_prop_name, key=lambda name: name[0])
@@ -57,6 +75,22 @@ class GetElements:
             elem["attributes"] = raw_elements["property_sets"][elem["attributes"]]
             elem["property_sets"] = [raw_elements["property_sets"][pset_id] for pset_id in elem["psets"]]
             self.elements.append(elem)
+        
+    def detect_type(self, values):
+        types = [str, float, int, bool]
+        value_types = [type(value) for value in values]
+        for python_type in types:
+            if all(value == python_type for value in value_types if value_types != type(None)):
+                return python_type
+        
+        return str 
+
+        
+    def force_types(self):
+        for column, values in self.formatted_elements.items():
+            print(column, self.detect_type(values))
+            column_type = self.detect_type(values)
+            self.df[column].astype(column_type)
 
     def run(self):
         configuration = self.config()
@@ -68,8 +102,17 @@ class GetElements:
         
         self.get_properties_from_elements()
         self.df = pd.DataFrame(self.formatted_elements)
+        self.force_types()
         return self.df
 
 if __name__ == "__main__":
-    get_elements = GetElements(dataset=dataset)
-    BIMData_info = get_elements.run()
+    dataset = {
+        "access_token": ["eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICI1Ql9OOGk4MnlCUWZkZnVfenByMGIyQ1Rfc21jV21kZDkzSTFQRGJXTkIwIn0.eyJqdGkiOiIwNDk3YWEwMC1jYWJkLTRmZDctYWJjZS03ODM3NTg1MzU0ODgiLCJleHAiOjE1NzYwNzA4NjIsIm5iZiI6MCwiaWF0IjoxNTc2MDY5MDYyLCJpc3MiOiJodHRwczovL2lhbS5iaW1kYXRhLmlvL2F1dGgvcmVhbG1zL2JpbWRhdGEiLCJhdWQiOiJhY2NvdW50Iiwic3ViIjoiNTM1NDc5YzItNzcxOS00NzEwLWJkMjQtNzE4MzU1NWJkMmYyIiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiMTk3MDQ2Iiwibm9uY2UiOiJiYmVhZjIxYi00Njg2LTQzNDEtOWNiYi1kNmI5NjY5MmM3NjUiLCJhdXRoX3RpbWUiOjE1NzYwNTUxMjQsInNlc3Npb25fc3RhdGUiOiI1OTgwYmMyYS1iYzZiLTQzYjEtOWI2Mi0xNDVlYWYzNzE4NzQiLCJhY3IiOiIxIiwiYWxsb3dlZC1vcmlnaW5zIjpbImh0dHBzOi8vcGxhdGZvcm0uYmltZGF0YS5pbyIsImh0dHBzOi8vcGxhdGZvcm0tYmFjay5iaW1kYXRhLmlvIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgY2hlY2s6cmVhZCB3ZWJob29rOm1hbmFnZSBkb2N1bWVudDpyZWFkIGNsb3VkOm1hbmFnZSBiY2Y6d3JpdGUgdXNlcjpyZWFkIGRvY3VtZW50OndyaXRlIG9yZzptYW5hZ2UgcHJvZmlsZSBpZmM6cmVhZCBlbWFpbCBiY2Y6cmVhZCBjaGVjazp3cml0ZSBpZmM6d3JpdGUgY2xvdWQ6cmVhZCIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiYmltZGF0YV9jb25uZWN0X3N1YiI6IjEzODIiLCJuYW1lIjoiSHVnbyBEdXJvdXgiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJiaW1kYXRhY29ubmVjdC5odWdvQGJpbWRhdGEuaW8iLCJnaXZlbl9uYW1lIjoiSHVnbyIsImZhbWlseV9uYW1lIjoiRHVyb3V4IiwiZW1haWwiOiJodWdvQGJpbWRhdGEuaW8ifQ.WyaPP6MQt2h0f_NG4ZVOJBKOcIBZfMUqrP8LI7nNElA2ykNrgRmEgtMXpnbpDnucOp5HhgQw_jNvYhFe8N1L5LF0H_jPCfW0VC3vzdgLdohS6tOS-ZxqV4ITFYNvMHiXtxnf8FfSes9nuf-zrAPvxc1nCVU8FKRP-SN1ZUscgIYEIiGDlOGiX8B8seWRxd_BF_lZTJWfOFMLGVNlK_O5TcHV2bkxsLkbt3jQMJ1aFac2wCa0ImyCORqaJvzV1em9acLV7jhAZBu-kBuqo7eTcEJfNZh1wEPXTcakOckkg6ebrgrZlVO7Rnz9azNxjooMtLUolgN1PqyUfL-mwrGjUw"],
+        "cloud_id": ["618"],
+        "project_id": ["10801"],
+        "ifc_id": ["4476"],
+        "api_url": ["https://api.bimdata.io"],
+        "ifc_type": ["IfcSpace"],
+    }
+    BIMData_info = GetElements(dataset=dataset).run()
+    del dataset
