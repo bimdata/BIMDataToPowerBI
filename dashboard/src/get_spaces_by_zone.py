@@ -2,9 +2,6 @@
 
 import pandas as pd
 import bimdata_api_client
-from decimal import *
-
-getcontext().prec = 6
 
 """
     GetSpaces class
