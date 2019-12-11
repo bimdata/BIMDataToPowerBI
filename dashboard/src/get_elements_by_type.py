@@ -1,5 +1,33 @@
+import json
 import pandas as pd
 import bimdata_api_client
+
+
+def cast_to_number(value):
+    try:
+        a = float(value)
+    except ValueError:
+        return None
+    if a.is_integer():
+        return int(a)
+    return a
+
+def smart_cast(value):
+    if value in ['True', 'true']:
+        return True
+    if value in ['False', 'false']:
+        return False
+    if value is None:
+        return None
+
+    number = cast_to_number(value)
+    if number is not None:
+        return number
+    try:
+        return str(value)
+    finally:
+        return value
+    
 
 class GetElements:
     def __init__(self, dataset, **kwargs):
@@ -36,7 +64,7 @@ class GetElements:
             for prop in element["attributes"]["properties"]:
                 full_name = ("Attributes", prop["definition"]["name"])
                 self.all_properties.add(full_name)
-                element["values"][full_name] = prop["value"]
+                element["values"][full_name] = smart_cast(prop["value"])
 
         sort_by_prop_name = sorted(self.all_properties, key=lambda name: name[1])
         sort_by_pset_name = sorted(sort_by_prop_name, key=lambda name: name[0])
@@ -57,6 +85,21 @@ class GetElements:
             elem["attributes"] = raw_elements["property_sets"][elem["attributes"]]
             elem["property_sets"] = [raw_elements["property_sets"][pset_id] for pset_id in elem["psets"]]
             self.elements.append(elem)
+        
+    def detect_type(self, values):
+        types = [str, float, int, bool]
+        value_types = [type(value) for value in values]
+        for python_type in types:
+            if all(value == python_type for value in value_types if value_types != type(None)):
+                return python_type
+        
+        return str 
+
+        
+    def force_types(self):
+        for column, values in self.formatted_elements.items():
+            column_type = self.detect_type(values)
+            self.df[column].astype(column_type)
 
     def run(self):
         configuration = self.config()
@@ -68,8 +111,9 @@ class GetElements:
         
         self.get_properties_from_elements()
         self.df = pd.DataFrame(self.formatted_elements)
+        self.force_types()
         return self.df
 
 if __name__ == "__main__":
     get_elements = GetElements(dataset=dataset)
-    BIMData_info = get_elements.run()
+    dataset = get_elements.run()
