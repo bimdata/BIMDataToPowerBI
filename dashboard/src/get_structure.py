@@ -24,9 +24,13 @@ class GetStructure:
 
         self.element_UUIDs = []
         self.space_UUIDs = []
+        self.space_names = []
         self.storey_UUIDs = []
+        self.storey_names = []
         self.building_UUIDs = []
+        self.building_names = []
         self.site_UUIDs = []
+        self.site_names = []
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
@@ -41,13 +45,18 @@ class GetStructure:
                 if not context:
                     context = {}
                 context[elem['type']] = elem['uuid']
+                context[elem['type']+"_name"] = elem.get('name')
                 self.recursive_parse(elem['children'], context=context)
             else:
                 self.element_UUIDs.append(elem['uuid'])
-                self.space_UUIDs.append(context.get('space', None))
+                self.space_UUIDs.append(context.get('space'))
+                self.space_names.append(context.get('space_name'))
                 self.storey_UUIDs.append(context['storey'])
+                self.storey_names.append(context.get('storey_name'))
                 self.building_UUIDs.append(context['building'])
+                self.building_names.append(context.get('building_name'))
                 self.site_UUIDs.append(context['site'])
+                self.site_names.append(context.get('site_name'))
 
     def run(self):
         configuration = self.config()
@@ -62,9 +71,13 @@ class GetStructure:
         data = {
             "element_UUID": self.element_UUIDs,
             "space_UUID": self.space_UUIDs,
+            "space_name": self.space_names,
             "storey_UUID": self.storey_UUIDs,
+            "storey_name": self.storey_names,
             "building_UUID": self.building_UUIDs,
+            "building_name": self.building_names,
             "site_UUID": self.site_UUIDs,
+            "site_name": self.site_names,
         }
         self.df = pd.DataFrame(data)
         return self.df
