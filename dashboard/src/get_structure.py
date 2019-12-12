@@ -54,7 +54,7 @@ class GetStructure:
                 if not context:
                     context = {}
                 context[elem['type']] = elem['uuid']
-                context[elem['type']+"_name"] = element.get('longname') if not elem.get('name') else elem.get('name')
+                context[elem['type']+"_name"] = elem.get('longname') if not elem.get('name') else elem.get('name')
                 self.recursive_parse(elem['children'], context=context)
             else:
                 zone = self.spaces.get(context.get('space'), {})
