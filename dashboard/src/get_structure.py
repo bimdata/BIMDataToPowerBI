@@ -23,6 +23,8 @@ class GetStructure:
         self.api_url = str(dataset["api_url"][0]) 
 
         self.element_UUIDs = []
+        self.zone_UUIDs = []
+        self.zone_names = []
         self.space_UUIDs = []
         self.space_names = []
         self.storey_UUIDs = []
@@ -31,6 +33,13 @@ class GetStructure:
         self.building_names = []
         self.site_UUIDs = []
         self.site_names = []
+
+        self.spaces = {
+            # UUID: {
+            #     zone_uuid
+            #     zone_name
+            # }
+        }
 
     def config(self):
         configuration = bimdata_api_client.Configuration()
@@ -45,10 +54,13 @@ class GetStructure:
                 if not context:
                     context = {}
                 context[elem['type']] = elem['uuid']
-                context[elem['type']+"_name"] = elem.get('name')
+                context[elem['type']+"_name"] = elem.get('longname') if not elem.get('name') else elem.get('name')
                 self.recursive_parse(elem['children'], context=context)
             else:
+                zone = self.spaces.get(context.get('space'), {})
                 self.element_UUIDs.append(elem['uuid'])
+                self.zone_UUIDs.append(zone.get('zone_uuid'))
+                self.zone_names.append(zone.get('zone_name'))
                 self.space_UUIDs.append(context.get('space'))
                 self.space_names.append(context.get('space_name'))
                 self.storey_UUIDs.append(context['storey'])
@@ -57,6 +69,15 @@ class GetStructure:
                 self.building_names.append(context.get('building_name'))
                 self.site_UUIDs.append(context['site'])
                 self.site_names.append(context.get('site_name'))
+    
+    def recursive_parse_zones(self, zones, parent_zone_uuid=None):
+        for zone in zones:
+            self.recursive_parse_zones(zone.zones, parent_zone_uuid=zone.uuid)
+            for space in zone.spaces:
+                if space.uuid not in self.spaces:
+                    self.spaces[space.uuid] = {}
+                self.spaces[space.uuid]["zone_name"] = zone.name
+                self.spaces[space.uuid]["zone_uuid"] = zone.uuid
 
     def run(self):
         configuration = self.config()
@@ -67,9 +88,13 @@ class GetStructure:
             structure_response = requests.get(ifc.structure_file)
             structure_response.raise_for_status()
             structure = structure_response.json()
+            zones = ifc_api.get_zones(self.cloud_pk, ifc_pk, self.project_pk)
+            self.recursive_parse_zones(zones)
             self.recursive_parse(structure)
         data = {
             "element_UUID": self.element_UUIDs,
+            "zone_UUID": self.zone_UUIDs,
+            "zone_name": self.zone_names,
             "space_UUID": self.space_UUIDs,
             "space_name": self.space_names,
             "storey_UUID": self.storey_UUIDs,
