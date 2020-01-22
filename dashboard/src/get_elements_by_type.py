@@ -3,6 +3,8 @@ import pandas as pd
 import bimdata_api_client
     
 def smart_cast(value):
+    if isinstance(value, int) or isinstance(value, float):
+        return value
     if value not in {"true", "false", None}:
         try:
             a = float(value)
