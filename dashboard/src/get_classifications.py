@@ -43,9 +43,9 @@ class GetClassifications:
     def run(self):
         configuration = self.config()
         ifc_api = bimdata_api_client.IfcApi(bimdata_api_client.ApiClient(configuration))
-        project_api = bimdata_api_client.ProjectApi(bimdata_api_client.ApiClient(configuration))
+        collaboration_api = bimdata_api_client.CollaborationApi(bimdata_api_client.ApiClient(configuration))
 
-        classifications = project_api.get_classifications(self.cloud_pk, self.project_pk)
+        classifications = collaboration_api.get_classifications(self.cloud_pk, self.project_pk)
         self.classifications = {classification.id: classification for classification in classifications}
         for ifc_pk in self.ifc_pks:
             classifications_relations = ifc_api.list_classification_element_relations(self.cloud_pk, ifc_pk, self.project_pk)
@@ -62,3 +62,4 @@ class GetClassifications:
 if __name__ == "__main__":
     get_classifications = GetClassifications(dataset=dataset)
     BIMData_info = get_classifications.run()
+    del dataset

@@ -1,10 +1,13 @@
 import json
 import pandas as pd
 import bimdata_api_client
-    
+
+
 def smart_cast(value):
     if isinstance(value, int) or isinstance(value, float):
         return value
+    if isinstance(value, list):
+        return ','.join([str(v) for v in value])
     if value not in {"true", "false", None}:
         try:
             a = float(value)
@@ -90,7 +93,6 @@ class GetElements:
         
     def force_types(self):
         for column, values in self.formatted_elements.items():
-            print(column, self.detect_type(values))
             column_type = self.detect_type(values)
             self.df[column].astype(column_type)
 
