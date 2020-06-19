@@ -22,7 +22,7 @@ def smart_cast(value):
         if value == "false":
             return False
         return None
-    
+
 
 class GetElements:
     def __init__(self, dataset, **kwargs):
@@ -80,17 +80,26 @@ class GetElements:
             elem["attributes"] = raw_elements["property_sets"][elem["attributes"]]
             elem["property_sets"] = [raw_elements["property_sets"][pset_id] for pset_id in elem["psets"]]
             self.elements.append(elem)
-        
+
     def detect_type(self, values):
         types = [str, float, int, bool]
         value_types = [type(value) for value in values]
         for python_type in types:
             if all(value == python_type for value in value_types if value_types != type(None)):
                 return python_type
-        
-        return str 
 
-        
+        return str
+
+    def remove_empty_colums(self):
+        column_to_remove = []
+        for key, values in self.formatted_elements.items():
+            if all(value == "" for value in a):
+                column_to_remove.append(key)
+
+        for key in column_to_remove:
+            del column_to_remove[key]
+
+
     def force_types(self):
         for column, values in self.formatted_elements.items():
             column_type = self.detect_type(values)
@@ -103,7 +112,9 @@ class GetElements:
         for ifc_pk in self.ifc_pks:
             api_response = ifc_api.get_raw_elements(self.cloud_pk, ifc_pk, self.project_pk, type=self.ifc_type)
             self.raw_elements_to_elements(api_response)
-        
+
+
+        self.remove_empty_colums()
         self.get_properties_from_elements()
         self.df = pd.DataFrame(self.formatted_elements)
         self.force_types()
