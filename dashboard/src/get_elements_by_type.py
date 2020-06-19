@@ -93,7 +93,7 @@ class GetElements:
     def remove_empty_colums(self):
         column_to_remove = []
         for key, values in self.formatted_elements.items():
-            if all(value == "" for value in a):
+            if all(value == "" or value is None for value in a):
                 column_to_remove.append(key)
 
         for key in column_to_remove:
