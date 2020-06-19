@@ -93,11 +93,11 @@ class GetElements:
     def remove_empty_colums(self):
         column_to_remove = []
         for key, values in self.formatted_elements.items():
-            if all(value == "" or value is None for value in a):
+            if all(value == "" or value is None for value in values):
                 column_to_remove.append(key)
 
         for key in column_to_remove:
-            del column_to_remove[key]
+            del self.formatted_elements[key]
 
 
     def force_types(self):
@@ -114,8 +114,8 @@ class GetElements:
             self.raw_elements_to_elements(api_response)
 
 
-        self.remove_empty_colums()
         self.get_properties_from_elements()
+        self.remove_empty_colums()
         self.df = pd.DataFrame(self.formatted_elements)
         self.force_types()
         return self.df
